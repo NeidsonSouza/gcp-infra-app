@@ -2,7 +2,7 @@ name: Deploy Web App
 
 on:
   pull_request:
-  push:
+
 
 jobs:
   build:
@@ -19,9 +19,5 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
 
-      - name: 'Use gcloud CLI'
-        run: gcloud info
-
-        # run: echo ${{ github.ref }}
       - name: print env of PR target
-        run: echo ${{ github.ref_name }}
+        run: echo ${{ github.branch_name }}; echo ${{github.event.pull_request.base.ref}}
