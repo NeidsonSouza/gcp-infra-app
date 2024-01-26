@@ -24,4 +24,4 @@ jobs:
 
         # run: echo ${{ github.ref }}
       - name: print env of PR target
-        run: echo ${{ env.GITHUB_REF_NAME }}
+        run: echo ${{ github.ref_name }}
