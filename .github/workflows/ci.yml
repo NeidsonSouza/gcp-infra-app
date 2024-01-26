@@ -2,6 +2,7 @@ name: Deploy Web App
 
 on:
   pull_request:
+  push:
 
 jobs:
   build:
@@ -20,3 +21,6 @@ jobs:
 
       - name: 'Use gcloud CLI'
         run: gcloud info
+
+      - name: print env of PR target
+        run: echo ${GITHUB_HEAD_REF}
