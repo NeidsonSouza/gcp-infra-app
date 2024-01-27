@@ -34,51 +34,44 @@ jobs:
         with:
           terraform_version: "1.7.1"
 
-      - name: Define tf path
-        id: tf-path
-        run: |
-          if [ "${{github.event_name}}" == "pull_request" ]; then
-            echo tf_path="${{github.event.pull_request.base.ref}}" >> $GITHUB_OUTPUT
-            [ "${{github.event.pull_request.base.ref}}" == "main" ] && echo tf_path="prod" >> $GITHUB_OUTPUT
-          fi
-          if [ "${{github.event_name}}" == "pull" ]; then
-            echo tf_path="${{github.ref_name}}" >> $GITHUB_OUTPUT
-            [ "${{github.ref_name}}" == "main" ] && echo tf_path="prod" >> $GITHUB_OUTPUT
-          fi
-
       - name: Terraform fmt
         id: fmt
-        if: ${{github.event_name}} == 'pull_request'
-        working-directory: ${{steps.tf-path.outputs.tf_path}}
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
           terraform fmt -check
       
-      - id: init
-        working-directory: ${{steps.tf-path.outputs.tf_path}}
+      - name: Define environment
+        id: gcp-env
         run: |
-          terraform init
+          [ "${{github.event_name}}" == "pull_request" ] && GCP_ENV="${{github.event.pull_request.base.ref}}"
+          [ "${{github.event_name}}" == "push" ] && GCP_ENV="${{github.ref_name}}"
+          [ "$GCP_ENV" == "main" ] && GCP_ENV="prod"
+          echo gcp_env=$GCP_ENV >> GITHUB_OUTPUT
+
+      
+      - id: init
+        run: |
+          terraform init \
+          -backend-config="bucket=terraform-tfstate-e8y7" \
+          -backend-config="prefix=tfstate/${{ steps.gcp-env.outputs.gcp_env }}" 
 
       - name: Terraform Validate
-        if: ${{github.event_name}} == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         id: validate
-        working-directory: ${{steps.tf-path.outputs.tf_path}}
         run: |
           terraform validate -no-color
         
       - name: Terraform Plan
-        id: plan
-        if: ${{github.event_name}} == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         env:
-          TF_VAR_gcp_env: ${{steps.tf-path.outputs.tf_path}}
-        working-directory: ${{steps.tf-path.outputs.tf_path}}
+          TF_VAR_gcp_env: ${{github.event.pull_request.base.ref}}
         run: |
           terraform plan -no-color
 
       - name: Terraform Apply
         id: apply
-        if: ${{github.event_name}} == 'push'
+        if: ${{ github.event_name == 'push' }}
         env:
-          TF_VAR_gcp_env: ${{steps.tf-path.outputs.tf_path}}
-        working-directory: ${{steps.tf-path.outputs.tf_path}}
+          TF_VAR_gcp_env: ${{github.ref_name}}
         run: |
           terraform apply -auto-approve
