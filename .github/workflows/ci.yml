@@ -43,7 +43,7 @@ jobs:
           echo tf_path=$env>> $GITHUB_OUTPUT
       
       - name: Terraform fmt
-        if: ${{github.event}} == 'pull_request'
+        if: ${{github.event_name}} == 'pull_request'
         id: fmt
         working-directory: ${{steps.set-vars.outputs.tf_path}}
         run: |
@@ -55,14 +55,14 @@ jobs:
           terraform init
 
       - name: Terraform Validate
-        if: ${{github.event}} == 'pull_request'
+        if: ${{github.event_name}} == 'pull_request'
         id: validate
         working-directory: ${{steps.set-vars.outputs.tf_path}}
         run: |
           terraform validate -no-color
         
       - name: Terraform Plan
-        if: ${{github.event}} == 'pull_request'
+        if: ${{github.event_name}} == 'pull_request'
         env:
           TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
         id: plan
@@ -71,9 +71,9 @@ jobs:
           terraform plan -no-color
 
       - name: Terraform Apply
-        if: ${{github.event}} == 'push'
+        if: ${{github.event_name}} == 'push'
         env:
-          TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
+          TF_VAR_gcp_env: ${{github.event.push.base.ref}}
         id: apply
         working-directory: ${{steps.set-vars.outputs.tf_path}}
         run: |
