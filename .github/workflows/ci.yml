@@ -25,10 +25,15 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.7.1"
+      
+      - if: ${{github.event.pull_request.base.ref}} != "main"
+        run: echo 1
 
-      - run: |
-          cd ${{github.event.pull_request.base.ref}}
-          terraform init
-        if: contains(fromJSON('["devel", "prod", staging]'), github.event.pull_request.base.ref)
+      # - run: |
+      #     if "${{github.event.pull_request.base.ref}}" == main 
+      #     cd ${{github.event.pull_request.base.ref}}
+      #     terraform init
+      #   if: contains(fromJSON('["devel", "main", "staging"]'), github.event.pull_request.base.ref)
 
-      - run: terraform plan -no-color
+      # - run: terraform plan -no-color
+      #   continue-on-error: true
