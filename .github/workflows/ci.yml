@@ -58,3 +58,12 @@ jobs:
         working-directory: ${{steps.set-vars.outputs.tf_path}}
         run: |
           terraform plan -no-color
+
+      - name: Terraform Apply
+        if: ${{ github.ref == 'refs/heads/main' }}
+        env:
+          TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
+        id: apply
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        run: |
+          terraform apply -auto-approve
