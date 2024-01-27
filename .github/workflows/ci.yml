@@ -45,6 +45,8 @@ jobs:
             echo tf_path="${{github.ref_name}}" >> $GITHUB_OUTPUT
             [ "${{github.ref_name}}" == "main" ] && echo tf_path="prod" >> $GITHUB_OUTPUT
           fi
+      
+      - run: echo eventname = ${{github.event_name}}  - ${{steps.tf-path.outputs.tf_path}}
 
       - name: Terraform fmt
         id: fmt
@@ -66,7 +68,6 @@ jobs:
           terraform validate -no-color
         
       - name: Terraform Plan
-        id: plan
         if: ${{github.event_name}} == 'pull_request'
         env:
           TF_VAR_gcp_env: ${{steps.tf-path.outputs.tf_path}}
