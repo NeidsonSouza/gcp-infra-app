@@ -1,4 +1,4 @@
 resource "google_project" "create" {
-  name       = "fullstack-${var.env}"
-  project_id = "fullstack-${var.env}"
+  name       = "fullstack-${var.gcp_env}"
+  project_id = "fullstack-${var.gcp_env}"
 }
