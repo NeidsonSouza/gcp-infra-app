@@ -26,17 +26,26 @@ jobs:
         with:
           terraform_version: "1.7.1"
       
-      - if: contains(fromJSON('["master", "main"]'), github.event.pull_request.base.ref)
-        run: echo ${{github.event.pull_request.base.ref}} main,master
+      # - if: contains(fromJSON('["master", "main", "devel", "staging"]'), github.event.pull_request.base.ref)
+      #   run: |
+      #     if [ 
+      #       "${{github.event.pull_request.base.ref}}" == "devel" ]
+      #       then echo tf_path=${{github.event.pull_request.base.ref}}
+      #     elif [ "${{github.event.pull_request.base.ref}}" == "staging"]
+            
+      #     if ; then echo tf_path=${{github.event.pull_request.base.ref}}; fi
+      #     if [ "${{github.event.pull_request.base.ref}}" == "main"]; then echo tf_path=prod; fi
+      #     if [ "${{github.event.pull_request.base.ref}}" == "master"]; then echo tf_path=prod; fi
       
-      - if: contains(fromJSON('["devel", "staging"]'), github.event.pull_request.base.ref)
-        run: echo ${{github.event.pull_request.base.ref}} devel,staging
+      # - if: contains(fromJSON('["devel", "staging"]'), github.event.pull_request.base.ref)
+      #   run: echo tf_folder=${{github.event.pull_request.base.ref}} >> $GITHUB_OUTPUT
 
-      # - run: |
-      #     if "${{github.event.pull_request.base.ref}}" == main 
-      #     cd ${{github.event.pull_request.base.ref}}
-      #     terraform init
-      #   if: contains(fromJSON('["devel", "main", "staging"]'), github.event.pull_request.base.ref)
+      - run: |
+          [ "${{github.event.pull_request.base.ref}}" == "devel" ] && cd devel
+          [ "${{github.event.pull_request.base.ref}}" == "staging" ] && cd staging
+          [ "${{github.event.pull_request.base.ref}}" == "main" ] && cd prod
+          [ "${{github.event.pull_request.base.ref}}" == "master" ] && cd prod
+          pwd
+          terraform init
 
-      # - run: terraform plan -no-color
-      #   continue-on-error: true
+      - run: pwd
