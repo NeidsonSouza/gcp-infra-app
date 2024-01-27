@@ -64,7 +64,7 @@ jobs:
       - name: Terraform Plan
         if: ${{ github.event_name == 'pull_request' }}
         env:
-          TF_VAR_gcp_env: ${{github.event.pull_request.base.ref}}
+          TF_VAR_gcp_env: ${{ steps.gcp-env.outputs.gcp_env }}
         run: |
           terraform plan -no-color
 
@@ -72,6 +72,6 @@ jobs:
         id: apply
         if: ${{ github.event_name == 'push' }}
         env:
-          TF_VAR_gcp_env: ${{github.ref_name}}
+          TF_VAR_gcp_env: ${{ steps.gcp-env.outputs.gcp_env }}
         run: |
           terraform apply -auto-approve
