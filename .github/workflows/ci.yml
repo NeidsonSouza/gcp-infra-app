@@ -6,6 +6,11 @@ on:
     - main
     - staging
     - devel
+  push:
+    branches:
+    - main
+    - staging
+    - devel
 
 
 jobs:
@@ -63,7 +68,7 @@ jobs:
           terraform plan -no-color
 
       - name: Terraform Apply
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: github.event.pull_request.merged == 'true'
         env:
           TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
         id: apply
