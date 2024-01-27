@@ -12,7 +12,6 @@ on:
     - staging
     - devel
 
-
 jobs:
   tf-plan-apply:
     runs-on: ubuntu-latest
@@ -35,43 +34,51 @@ jobs:
         with:
           terraform_version: "1.7.1"
 
-      - id: set-vars
+      - name: Define tf path
+        id: tf-path
         run: |
-          [ "${{github.event.pull_request.base.ref}}" == "devel" ]   && env=devel
-          [ "${{github.event.pull_request.base.ref}}" == "staging" ] && env=staging
-          [ "${{github.event.pull_request.base.ref}}" == "main" ]    && env=prod
-          echo tf_path=$env>> $GITHUB_OUTPUT
-      
+          if [ "${{github.event_name}}" == "pull_request" ]; then
+            echo tf_path="${{github.event.pull_request.base.ref}}" >> $GITHUB_OUTPUT
+            [ "${{github.event.pull_request.base.ref}}" == "main" ] && echo tf_path="prod" >> $GITHUB_OUTPUT
+          fi
+          if [ "${{github.event_name}}" == "pull" ]; then
+            echo tf_path="${{github.ref_name}}" >> $GITHUB_OUTPUT
+            [ "${{github.ref_name}}" == "main" ] && echo tf_path="prod" >> $GITHUB_OUTPUT
+          fi
+
       - name: Terraform fmt
         id: fmt
-        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        if: ${{github.event_name}} == 'pull_request'
+        working-directory: ${{steps.tf-path.outputs.tf_path}}
         run: |
           terraform fmt -check
       
       - id: init
-        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        working-directory: ${{steps.tf-path.outputs.tf_path}}
         run: |
           terraform init
 
       - name: Terraform Validate
+        if: ${{github.event_name}} == 'pull_request'
         id: validate
-        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        working-directory: ${{steps.tf-path.outputs.tf_path}}
         run: |
           terraform validate -no-color
         
       - name: Terraform Plan
-        env:
-          TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
         id: plan
-        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        if: ${{github.event_name}} == 'pull_request'
+        env:
+          TF_VAR_gcp_env: ${{steps.tf-path.outputs.tf_path}}
+        working-directory: ${{steps.tf-path.outputs.tf_path}}
         run: |
           terraform plan -no-color
 
       - name: Terraform Apply
-        if: github.event.pull_request.merged == 'true'
-        env:
-          TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
         id: apply
-        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        if: ${{github.event_name}} == 'push'
+        env:
+          TF_VAR_gcp_env: ${{steps.tf-path.outputs.tf_path}}
+        working-directory: ${{steps.tf-path.outputs.tf_path}}
         run: |
           terraform apply -auto-approve
