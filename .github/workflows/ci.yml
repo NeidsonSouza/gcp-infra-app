@@ -28,10 +28,10 @@ jobs:
 
       - id: set-vars
         run: |
-          [ "${{github.event.pull_request.base.ref}}" == "devel" ] && echo tf_path=devel >> GITHUB_OUTPUT
-          [ "${{github.event.pull_request.base.ref}}" == "staging" ] && echo tf_path=staging >> GITHUB_OUTPUT
-          [ "${{github.event.pull_request.base.ref}}" == "main" ] && echo tf_path=prod >> GITHUB_OUTPUT
-          [ "${{github.event.pull_request.base.ref}}" == "master" ] && echo tf_path=prod >> GITHUB_OUTPUT
+          [ "${{github.event.pull_request.base.ref}}" == "devel" ] && echo tf_path=devel >> $GITHUB_OUTPUT
+          [ "${{github.event.pull_request.base.ref}}" == "staging" ] && echo tf_path=staging >> $GITHUB_OUTPUT
+          [ "${{github.event.pull_request.base.ref}}" == "main" ] && echo tf_path=prod >> $GITHUB_OUTPUT
+          [ "${{github.event.pull_request.base.ref}}" == "master" ] && echo tf_path=prod >> $GITHUB_OUTPUT
       
       - name: Terraform fmt
         id: fmt
