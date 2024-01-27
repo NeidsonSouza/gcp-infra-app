@@ -2,7 +2,6 @@ locals {
   project_id = "fullstack-${var.gcp_env}"
   services = [
     "cloudresourcemanager.googleapis.com",
-    "serviceusage.googleapis.com",
   ]
 }
 
