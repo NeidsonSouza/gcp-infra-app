@@ -49,30 +49,32 @@ jobs:
         run: |
           terraform fmt -check
       
-      # - id: init
-      #   working-directory: ${{steps.set-vars.outputs.tf_path}}
-      #   run: |
-      #     terraform init
+      - id: init
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        run: |
+          terraform init
 
-      # - name: Terraform Validate
-      #   id: validate
-      #   working-directory: ${{steps.set-vars.outputs.tf_path}}
-      #   run: |
-      #     terraform validate -no-color
+      - name: Terraform Validate
+        if: ${{github.event}} == 'pull_request'
+        id: validate
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        run: |
+          terraform validate -no-color
         
-      # - name: Terraform Plan
-      #   env:
-      #     TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
-      #   id: plan
-      #   working-directory: ${{steps.set-vars.outputs.tf_path}}
-      #   run: |
-      #     terraform plan -no-color
+      - name: Terraform Plan
+        if: ${{github.event}} == 'pull_request'
+        env:
+          TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
+        id: plan
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        run: |
+          terraform plan -no-color
 
-      # - name: Terraform Apply
-      #   if: github.event.pull_request.merged == 'true'
-      #   env:
-      #     TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
-      #   id: apply
-      #   working-directory: ${{steps.set-vars.outputs.tf_path}}
-      #   run: |
-      #     terraform apply -auto-approve
+      - name: Terraform Apply
+        if: ${{github.event}} == 'push'
+        env:
+          TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
+        id: apply
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        run: |
+          terraform apply -auto-approve
