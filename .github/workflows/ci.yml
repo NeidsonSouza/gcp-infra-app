@@ -23,6 +23,7 @@ jobs:
         run: echo ${{github.event.pull_request.base.ref}}
 
       - name: Create Plan Run
+        if: contains(fromJSON('["devel", "prod", staging]'), github.event.pull_request.base.ref)
         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
         id: plan-run
         with:
