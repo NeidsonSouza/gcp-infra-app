@@ -21,3 +21,10 @@ jobs:
 
       - name: print env of PR target
         run: echo ${{github.event.pull_request.base.ref}}
+
+      - name: Create Plan Run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+        id: plan-run
+        with:
+          workspace: ${{github.event.pull_request.base.ref}}
+          plan_only: true
