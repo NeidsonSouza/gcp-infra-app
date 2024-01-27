@@ -21,11 +21,14 @@ jobs:
 
       - name: print env of PR target
         run: echo ${{github.event.pull_request.base.ref}}
-
-      - name: Create Plan Run
-        if: contains(fromJSON('["devel", "prod", staging]'), github.event.pull_request.base.ref)
-        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
-        id: plan-run
+      
+      - uses: hashicorp/setup-terraform@v3
         with:
-          workspace: ${{github.event.pull_request.base.ref}}
-          plan_only: true
+          terraform_version: "1.7.1"
+
+      - run: |
+          cd ${{github.event.pull_request.base.ref}}
+          terraform init
+        if: contains(fromJSON('["devel", "prod", staging]'), github.event.pull_request.base.ref)
+
+      - run: terraform plan -no-color
