@@ -45,8 +45,8 @@ jobs:
         run: |
           [ "${{github.event_name}}" == "pull_request" ] && GCP_ENV="${{github.event.pull_request.base.ref}}"
           [ "${{github.event_name}}" == "push" ] && GCP_ENV="${{github.ref_name}}"
-          [ "$GCP_ENV" == "main" ] && GCP_ENV="prod"
-          echo gcp_env=$GCP_ENV >> GITHUB_OUTPUT
+          [ $GCP_ENV == "main" ] && GCP_ENV="prod"
+          echo gcp_env=$GCP_ENV >> $GITHUB_OUTPUT
 
       
       - id: init
