@@ -58,21 +58,21 @@ jobs:
         run: |
           terraform init
 
-      # - name: Terraform Validate
-      #   if: ${{github.event_name}} == 'pull_request'
-      #   id: validate
-      #   working-directory: ${{steps.tf-path.outputs.tf_path}}
-      #   run: |
-      #     terraform validate -no-color
+      - name: Terraform Validate
+        if: ${{github.event_name}} == 'pull_request'
+        id: validate
+        working-directory: ${{steps.tf-path.outputs.tf_path}}
+        run: |
+          terraform validate -no-color
         
-      # - name: Terraform Plan
-      #   if: ${{github.event_name}} == 'pull_request'
-      #   env:
-      #     TF_VAR_gcp_env: ${{steps.tf-path.outputs.tf_path}}
-      #   id: plan
-      #   working-directory: ${{steps.tf-path.outputs.tf_path}}
-      #   run: |
-      #     terraform plan -no-color
+      - name: Terraform Plan
+        id: plan
+        if: ${{github.event_name}} == 'pull_request'
+        env:
+          TF_VAR_gcp_env: ${{steps.tf-path.outputs.tf_path}}
+        working-directory: ${{steps.tf-path.outputs.tf_path}}
+        run: |
+          terraform plan -no-color
 
       # - name: Terraform Apply
       #   if: ${{github.event_name}} == 'push'
