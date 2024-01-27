@@ -20,4 +20,4 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v2'
 
       - name: print env of PR target
-        run: echo ${{ github.branch_name }}; echo ${{github.event.pull_request.base.ref}}
+        run: echo ${{github.event.pull_request.base.ref}}
