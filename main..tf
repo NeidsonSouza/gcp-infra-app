@@ -7,7 +7,7 @@ locals {
 }
 
 resource "google_project_service" "project" {
-  for_each = local.services
+  for_each = toset(local.services)
   project  = "core-1s4u"
   service  = each.key
 }
