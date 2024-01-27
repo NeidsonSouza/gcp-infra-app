@@ -37,10 +37,9 @@ jobs:
 
       - id: set-vars
         run: |
-          [ "${{github.event.pull_request.base.ref}}" == "devel" ]   && env=devel
-          [ "${{github.event.pull_request.base.ref}}" == "staging" ] && env=staging
-          [ "${{github.event.pull_request.base.ref}}" == "main" ]    && env=prod
-          echo tf_path=$env>> $GITHUB_OUTPUT
+          env=${{github.event.pull_request.base.ref}}
+          [ "${{github.event.pull_request.base.ref}}" == "main" ] && env=prod
+          echo tf_path=$env >> $GITHUB_OUTPUT
       
       - name: Terraform fmt
         if: ${{github.event_name}} == 'pull_request'
