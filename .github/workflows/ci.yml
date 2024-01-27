@@ -74,11 +74,11 @@ jobs:
         run: |
           terraform plan -no-color
 
-      # - name: Terraform Apply
-      #   if: ${{github.event_name}} == 'push'
-      #   env:
-      #     TF_VAR_gcp_env: ${{github.event.push.base.ref}}
-      #   id: apply
-      #   working-directory: ${{steps.tf-path.outputs.tf_path}}
-      #   run: |
-      #     terraform apply -auto-approve
+      - name: Terraform Apply
+        id: apply
+        if: ${{github.event_name}} == 'push'
+        env:
+          TF_VAR_gcp_env: ${{steps.tf-path.outputs.tf_path}}
+        working-directory: ${{steps.tf-path.outputs.tf_path}}
+        run: |
+          terraform apply -auto-approve
