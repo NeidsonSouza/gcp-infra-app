@@ -52,31 +52,11 @@ jobs:
         working-directory: ${{steps.tf-path.outputs.tf_path}}
         run: |
           terraform fmt -check
-
-
-
-
-
-
-      # - if: ${{github.event_name}} == 'pull_request'
-      #   run: |
-      #     env=${{github.event.pull_request.base.ref}}
-      #     [ "${{github.event.pull_request.base.ref}}" == "main" ] && env=prod
-      #     echo tf_path=$env >> /tmp/vars.txt
-
-      # - if: ${{github.event_name}} == 'push'
-      #   run: |
-      #     env=${{github.event.pull_request.base.ref}}
-      #     [ "${{github.event.pull_request.base.ref}}" == "main" ] && env=prod
-      #     echo tf_path=$env >> /tmp/vars.txt
-
       
-      
-      
-      # - id: init
-      #   working-directory: ${{steps.tf-path.outputs.tf_path}}
-      #   run: |
-      #     terraform init
+      - id: init
+        working-directory: ${{steps.tf-path.outputs.tf_path}}
+        run: |
+          terraform init
 
       # - name: Terraform Validate
       #   if: ${{github.event_name}} == 'pull_request'
