@@ -2,9 +2,19 @@ name: Deploy Web App
 
 on:
   pull_request:
+    branches:
+    - main
+    - staging
+    - devel
+  push:
+    branches:
+    - main
+    - staging
+    - devel
+
 
 jobs:
-  build:
+  tf-plan-apply:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,5 +28,50 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
 
-      - name: 'Use gcloud CLI'
-        run: gcloud info
+      - name: print env of PR target
+        run: echo ${{github.event.pull_request.base.ref}}
+      
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.1"
+
+      - id: set-vars
+        run: |
+          [ "${{github.event.pull_request.base.ref}}" == "devel" ]   && env=devel
+          [ "${{github.event.pull_request.base.ref}}" == "staging" ] && env=staging
+          [ "${{github.event.pull_request.base.ref}}" == "main" ]    && env=prod
+          echo tf_path=$env>> $GITHUB_OUTPUT
+      
+      - name: Terraform fmt
+        id: fmt
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        run: |
+          terraform fmt -check
+      
+      - id: init
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        run: |
+          terraform init
+
+      - name: Terraform Validate
+        id: validate
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        run: |
+          terraform validate -no-color
+        
+      - name: Terraform Plan
+        env:
+          TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
+        id: plan
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        run: |
+          terraform plan -no-color
+
+      - name: Terraform Apply
+        if: github.event.pull_request.merged == 'true'
+        env:
+          TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
+        id: apply
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
+        run: |
+          terraform apply -auto-approve
