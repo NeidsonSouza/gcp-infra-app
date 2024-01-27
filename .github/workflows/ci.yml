@@ -2,6 +2,10 @@ name: Deploy Web App
 
 on:
   pull_request:
+    branches:
+    - main
+    - staging
+    - devel
 
 
 jobs:
@@ -31,7 +35,6 @@ jobs:
           [ "${{github.event.pull_request.base.ref}}" == "devel" ]   && env=devel
           [ "${{github.event.pull_request.base.ref}}" == "staging" ] && env=staging
           [ "${{github.event.pull_request.base.ref}}" == "main" ]    && env=prod
-          [ "${{github.event.pull_request.base.ref}}" == "master" ]  && env=prod
           echo tf_path=$env>> $GITHUB_OUTPUT
       
       - name: Terraform fmt
