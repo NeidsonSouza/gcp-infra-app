@@ -1,3 +1,3 @@
-variable "env" {
+variable "gcp_env" {
   type = string
 }

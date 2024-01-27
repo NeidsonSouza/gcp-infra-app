@@ -5,7 +5,7 @@ on:
 
 
 jobs:
-  build:
+  tf-plan-apply:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,26 +37,28 @@ jobs:
       - name: Terraform fmt
         id: fmt
         continue-on-error: true
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
         run: |
-          cd ${{steps.set-vars.outputs.tf_path}}
           terraform fmt -check
       
       - id: init
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
         run: |
-          cd ${{steps.set-vars.outputs.tf_path}}
           terraform init
 
       - name: Terraform Validate
         id: validate
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
         run: |
-          cd ${{steps.set-vars.outputs.tf_path}}
           terraform validate -no-color
         
       - name: Terraform Plan
+        env:
+          TF_VAR_gcp_env: ${{steps.set-vars.outputs.tf_path}}
         id: plan
+        working-directory: ${{steps.set-vars.outputs.tf_path}}
         continue-on-error: true
         run: |
-          cd ${{steps.set-vars.outputs.tf_path}}
           terraform plan -no-color
         
       # - uses: actions/github-script@v6
