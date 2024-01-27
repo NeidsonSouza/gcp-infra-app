@@ -26,8 +26,6 @@ jobs:
         with:
           terraform_version: "1.7.1"
 
-      - run: 
-
       - run: |
           [ "${{github.event.pull_request.base.ref}}" == "devel" ] && cd devel
           [ "${{github.event.pull_request.base.ref}}" == "staging" ] && cd staging
