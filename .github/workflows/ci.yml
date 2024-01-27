@@ -26,8 +26,11 @@ jobs:
         with:
           terraform_version: "1.7.1"
       
-      - if: ${{github.event.pull_request.base.ref}} != "main"
-        run: echo 1
+      - if: contains(fromJSON('["master", "main"]'), github.event.pull_request.base.ref)
+        run: echo ${{github.event.pull_request.base.ref}} main,master
+      
+      - if: contains(fromJSON('["devel", "staging"]'), github.event.pull_request.base.ref)
+        run: echo ${{github.event.pull_request.base.ref}} devel,staging
 
       # - run: |
       #     if "${{github.event.pull_request.base.ref}}" == main 
