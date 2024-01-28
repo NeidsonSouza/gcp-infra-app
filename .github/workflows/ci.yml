@@ -1,77 +1,77 @@
-name: Deploy Web App
+# name: Deploy Web App
 
-on:
-  pull_request:
-    branches:
-    - main
-    - staging
-    - devel
-  push:
-    branches:
-    - main
-    - staging
-    - devel
+# on:
+#   pull_request:
+#     branches:
+#     - main
+#     - staging
+#     - devel
+#   push:
+#     branches:
+#     - main
+#     - staging
+#     - devel
 
-jobs:
-  tf-plan-apply:
-    runs-on: ubuntu-latest
+# jobs:
+#   tf-plan-apply:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+#     steps:
+#       - uses: actions/checkout@v4
 
-      - id: 'auth'
-        uses: 'google-github-actions/auth@v2'
-        with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+#       - id: 'auth'
+#         uses: 'google-github-actions/auth@v2'
+#         with:
+#           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
+#       - name: 'Set up Cloud SDK'
+#         uses: 'google-github-actions/setup-gcloud@v2'
 
-      - name: print env of PR target
-        run: echo ${{github.event.pull_request.base.ref}}
+#       - name: print env of PR target
+#         run: echo ${{github.event.pull_request.base.ref}}
       
-      - uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.7.1"
+#       - uses: hashicorp/setup-terraform@v3
+#         with:
+#           terraform_version: "1.7.1"
 
-      - name: Terraform fmt
-        id: fmt
-        if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          terraform fmt -check
+#       - name: Terraform fmt
+#         id: fmt
+#         if: ${{ github.event_name == 'pull_request' }}
+#         run: |
+#           terraform fmt -check
       
-      - name: Define environment
-        id: gcp-env
-        run: |
-          [ "${{github.event_name}}" == "pull_request" ] && GCP_ENV="${{github.event.pull_request.base.ref}}"
-          [ "${{github.event_name}}" == "push" ] && GCP_ENV="${{github.ref_name}}"
-          [ $GCP_ENV == "main" ] && GCP_ENV="prod"
-          echo gcp_env=$GCP_ENV >> $GITHUB_OUTPUT
+#       - name: Define environment
+#         id: gcp-env
+#         run: |
+#           [ "${{github.event_name}}" == "pull_request" ] && GCP_ENV="${{github.event.pull_request.base.ref}}"
+#           [ "${{github.event_name}}" == "push" ] && GCP_ENV="${{github.ref_name}}"
+#           [ $GCP_ENV == "main" ] && GCP_ENV="prod"
+#           echo gcp_env=$GCP_ENV >> $GITHUB_OUTPUT
 
       
-      - id: init
-        run: |
-          terraform init \
-          -backend-config="bucket=terraform-tfstate-e8y7" \
-          -backend-config="prefix=tfstate/${{ steps.gcp-env.outputs.gcp_env }}" 
+#       - id: init
+#         run: |
+#           terraform init \
+#           -backend-config="bucket=terraform-tfstate-e8y7" \
+#           -backend-config="prefix=tfstate/${{ steps.gcp-env.outputs.gcp_env }}" 
 
-      - name: Terraform Validate
-        if: ${{ github.event_name == 'pull_request' }}
-        id: validate
-        run: |
-          terraform validate -no-color
+#       - name: Terraform Validate
+#         if: ${{ github.event_name == 'pull_request' }}
+#         id: validate
+#         run: |
+#           terraform validate -no-color
         
-      - name: Terraform Plan
-        if: ${{ github.event_name == 'pull_request' }}
-        env:
-          TF_VAR_gcp_env: ${{ steps.gcp-env.outputs.gcp_env }}
-        run: |
-          terraform plan -no-color
+#       - name: Terraform Plan
+#         if: ${{ github.event_name == 'pull_request' }}
+#         env:
+#           TF_VAR_gcp_env: ${{ steps.gcp-env.outputs.gcp_env }}
+#         run: |
+#           terraform plan -no-color
 
-      - name: Terraform Apply
-        id: apply
-        if: ${{ github.event_name == 'push' }}
-        env:
-          TF_VAR_gcp_env: ${{ steps.gcp-env.outputs.gcp_env }}
-        run: |
-          terraform apply -auto-approve
+#       - name: Terraform Apply
+#         id: apply
+#         if: ${{ github.event_name == 'push' }}
+#         env:
+#           TF_VAR_gcp_env: ${{ steps.gcp-env.outputs.gcp_env }}
+#         run: |
+#           terraform apply -auto-approve

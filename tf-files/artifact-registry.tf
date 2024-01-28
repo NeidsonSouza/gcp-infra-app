@@ -4,5 +4,5 @@ resource "google_artifact_registry_repository" "node-repo" {
   description   = "Docker repository"
   format        = "DOCKER"
   project       = local.project_id
-  depends_on    = [google_project.create]
+  depends_on    = [google_project_service.art]
 }
