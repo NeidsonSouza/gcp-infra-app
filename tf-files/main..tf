@@ -19,3 +19,8 @@ resource "google_project_service" "art" {
   service    = "artifactregistry.googleapis.com"
   depends_on = [google_project.create]
 }
+resource "google_project_service" "art" {
+  project    = local.project_id
+  service    = "artifactregistry.googleapis.com"
+  depends_on = [google_project.create]
+}
